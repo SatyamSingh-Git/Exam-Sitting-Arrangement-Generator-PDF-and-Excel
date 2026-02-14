@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="96" viewBox="0 0 160 96">
+  <rect width="160" height="96" fill="#fff"/>
+  <g transform="translate(8,8)">
+    <!-- Gap strategy: alternate filled and empty seats -->
+    <!-- row1 -->
+    <g>
+      <rect x="0" y="0" width="36" height="22" rx="3" fill="#ef4444"/>
+      <rect x="44" y="0" width="36" height="22" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <rect x="88" y="0" width="36" height="22" rx="3" fill="#ef4444"/>
+      <rect x="132" y="0" width="36" height="22" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <!-- row2 -->
+      <rect x="0" y="30" width="36" height="22" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <rect x="44" y="30" width="36" height="22" rx="3" fill="#ef4444"/>
+      <rect x="88" y="30" width="36" height="22" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <rect x="132" y="30" width="36" height="22" rx="3" fill="#ef4444"/>
+      <!-- row3 -->
+      <rect x="0" y="60" width="36" height="22" rx="3" fill="#ef4444"/>
+      <rect x="44" y="60" width="36" height="22" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+      <rect x="88" y="60" width="36" height="22" rx="3" fill="#ef4444"/>
+      <rect x="132" y="60" width="36" height="22" rx="3" fill="#ffffff" stroke="#e5e7eb"/>
+    </g>
+  </g>
+</svg>

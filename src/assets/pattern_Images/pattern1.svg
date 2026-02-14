@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="96" viewBox="0 0 160 96">
+  <rect width="160" height="96" fill="#fff"/>
+  <!-- 4x2 benches (simplified) -->
+  <g transform="translate(8,8)">
+    <!-- draw 4 columns x 3 rows of benches -->
+    <g fill="#f3f4f6">
+      <rect x="0" y="0" width="36" height="22" rx="3"/>
+      <rect x="44" y="0" width="36" height="22" rx="3"/>
+      <rect x="88" y="0" width="36" height="22" rx="3"/>
+      <rect x="132" y="0" width="36" height="22" rx="3"/>
+    </g>
+    <!-- pairs: left red, right blue -->
+    <g>
+      <!-- first row pairs -->
+      <g fill="#ef4444"><rect x="2" y="2" width="16" height="18" rx="2"/></g>
+      <g fill="#3b82f6"><rect x="18" y="2" width="16" height="18" rx="2" transform="translate(44,0)"/></g>
+      <g fill="#ef4444"><rect x="2" y="2" width="16" height="18" rx="2" transform="translate(88,0)"/></g>
+      <g fill="#3b82f6"><rect x="2" y="2" width="16" height="18" rx="2" transform="translate(132,0)"/></g>
+    </g>
+    <!-- second row -->
+    <g transform="translate(0,30)">
+      <g fill="#f3f4f6">
+        <rect x="0" y="0" width="36" height="22" rx="3"/>
+        <rect x="44" y="0" width="36" height="22" rx="3"/>
+        <rect x="88" y="0" width="36" height="22" rx="3"/>
+        <rect x="132" y="0" width="36" height="22" rx="3"/>
+      </g>
+      <g>
+        <g fill="#ef4444"><rect x="2" y="2" width="16" height="18" rx="2"/></g>
+        <g fill="#3b82f6"><rect x="18" y="2" width="16" height="18" rx="2" transform="translate(44,0)"/></g>
+        <g fill="#ef4444"><rect x="2" y="2" width="16" height="18" rx="2" transform="translate(88,0)"/></g>
+        <g fill="#3b82f6"><rect x="2" y="2" width="16" height="18" rx="2" transform="translate(132,0)"/></g>
+      </g>
+    </g>
+    <!-- third row -->
+    <g transform="translate(0,60)">
+      <g fill="#f3f4f6">
+        <rect x="0" y="0" width="36" height="22" rx="3"/>
+        <rect x="44" y="0" width="36" height="22" rx="3"/>
+        <rect x="88" y="0" width="36" height="22" rx="3"/>
+        <rect x="132" y="0" width="36" height="22" rx="3"/>
+      </g>
+      <g>
+        <g fill="#ef4444"><rect x="2" y="2" width="16" height="18" rx="2"/></g>
+        <g fill="#3b82f6"><rect x="18" y="2" width="16" height="18" rx="2" transform="translate(44,0)"/></g>
+        <g fill="#ef4444"><rect x="2" y="2" width="16" height="18" rx="2" transform="translate(88,0)"/></g>
+        <g fill="#3b82f6"><rect x="2" y="2" width="16" height="18" rx="2" transform="translate(132,0)"/></g>
+      </g>
+    </g>
+  </g>
+</svg>
