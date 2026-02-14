@@ -111,38 +111,40 @@ export async function saveAsPdf(seating, rows, cols, perBench = 2, gapAfter = 0,
   }
   classSummaryHtml += `<div><b>कुल:</b>&nbsp;&nbsp;${totalStudents}</div>`
 
-  // Build seating grid rows
+  // Build seating grid rows — each bench expands to perBench columns (1 seat = 1 cell)
+  const tableCols = cols * perBench
   let gridHeaderHtml = ''
   let gridBodyHtml = ''
 
-  // Header row with "अनुक्रमांक"
+  // Header row with "अनुक्रमांक" — one per seat column
   gridHeaderHtml += '<tr>'
   for (let c = 0; c < cols; c++) {
-    gridHeaderHtml += `<th style="border:1.5px solid #000;padding:6px 2px;text-align:center;font-weight:bold;font-size:11px;">अनुक्रमांक</th>`
+    for (let s = 0; s < perBench; s++) {
+      gridHeaderHtml += `<th style="border:1.5px solid #000;padding:6px 2px;text-align:center;font-weight:bold;font-size:11px;">अनुक्रमांक</th>`
+    }
     if (gapAfter > 0 && ((c + 1) % gapAfter === 0) && c !== cols - 1) {
-      gridHeaderHtml += `<th style="border:1.5px solid #000;background:#eee;width:18px;"></th>`
+      gridHeaderHtml += `<th style="border:1.5px solid #000;background:#eee;"></th>`
     }
   }
   gridHeaderHtml += '</tr>'
 
-  // Data rows
+  // Data rows — each bench produces perBench <td> cells
   for (let r = 0; r < rows; r++) {
     gridBodyHtml += '<tr>'
     for (let c = 0; c < cols; c++) {
       const idx = r * cols + c
       const bench = seating[idx]
-      let cellContent = ''
-      if (bench) {
-        const validSeats = (bench.seats || []).filter(s => s)
-        if (validSeats.length > 0) {
-          const rollLine = validSeats.map(s => String(s.roll)).join(', ')
-          const classLine = validSeats.map(s => s.className || '').join(', ')
-          cellContent = `<div style="text-align:center;line-height:1.4;">${rollLine}${classLine ? `<br/><span style="font-size:9px;color:#333;">${classLine}</span>` : ''}</div>`
+      const seats = bench ? (bench.seats || []) : []
+      for (let s = 0; s < perBench; s++) {
+        const seat = seats[s] || null
+        let cellContent = ''
+        if (seat) {
+          cellContent = `<div style="text-align:center;line-height:1.4;">${String(seat.roll)}${seat.className ? `<br/><span style="font-size:9px;color:#333;">${seat.className}</span>` : ''}</div>`
         }
+        gridBodyHtml += `<td style="border:1.5px solid #000;padding:8px 4px;font-size:12px;min-height:48px;height:48px;vertical-align:middle;text-align:center;">${cellContent}</td>`
       }
-      gridBodyHtml += `<td style="border:1.5px solid #000;padding:8px 4px;font-size:12px;min-height:48px;height:48px;vertical-align:middle;text-align:center;">${cellContent}</td>`
       if (gapAfter > 0 && ((c + 1) % gapAfter === 0) && c !== cols - 1) {
-        gridBodyHtml += `<td style="border:1.5px solid #000;background:#eee;width:18px;"></td>`
+        gridBodyHtml += `<td style="border:1.5px solid #000;background:#eee;"></td>`
       }
     }
     gridBodyHtml += '</tr>'
@@ -194,7 +196,7 @@ export async function saveAsPdf(seating, rows, cols, perBench = 2, gapAfter = 0,
   </div>
 
   <!-- Seating Grid -->
-  <table style="border-collapse:collapse;width:100%;margin-top:14px;">
+  <table style="border-collapse:collapse;width:100%;margin-top:14px;table-layout:fixed;">
     <thead>${gridHeaderHtml}</thead>
     <tbody>${gridBodyHtml}</tbody>
   </table>

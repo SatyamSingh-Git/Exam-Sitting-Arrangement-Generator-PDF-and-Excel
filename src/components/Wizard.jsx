@@ -25,8 +25,8 @@ export default function Wizard() {
     { name: 'Class B', start: '', end: '', count: '', color: '#3b82f6' }
   ])
   const [rows, setRows] = useState(12)
-  const [cols, setCols] = useState(6)
-  const [perBench, setPerBench] = useState(1)
+  const [cols, setCols] = useState(3)
+  const [perBench, setPerBench] = useState(2)
   const [gapAfter, setGapAfter] = useState(0)
   const [pattern, setPattern] = useState('pattern1')
   const [leaveFirstSeatEmpty, setLeaveFirstSeatEmpty] = useState(false)
