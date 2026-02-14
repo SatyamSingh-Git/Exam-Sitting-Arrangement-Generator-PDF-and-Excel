@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import PreviewGrid from './PreviewGrid'
 import { generateSeating } from '../utils/patterns'
-import { saveAsExcel, saveAsPdf } from '../utils/exports'
+import { saveAsExcel, saveAsPdf, saveAsDocx } from '../utils/exports'
 import PatternThumb from './PatternThumb'
 import FullscreenPreview from './FullscreenPreview'
 
@@ -152,6 +152,7 @@ export default function Wizard() {
           <div className="mt-4 flex flex-col sm:flex-row gap-2 items-center">
             <button onClick={() => setStep(3)} className="px-3 py-1 border rounded w-full sm:w-auto">Back</button>
             <button onClick={() => saveAsPdf(seating, rows, cols, perBench, gapAfter, { schoolName, roomNumber, centerNumber, examClass, direction, subject, examDate, questionPaper, examDate2, subject2, questionPaper2, classes })} className="px-3 py-1 bg-indigo-600 text-white rounded w-full sm:w-auto">Download PDF</button>
+            <button onClick={() => saveAsDocx(seating, rows, cols, perBench, gapAfter, { schoolName, roomNumber, centerNumber, examClass, direction, subject, examDate, questionPaper, examDate2, subject2, questionPaper2, classes })} className="px-3 py-1 bg-blue-700 text-white rounded w-full sm:w-auto">Download DOCX</button>
             <button onClick={() => saveAsExcel(seating, rows, cols, perBench, gapAfter)} className="px-3 py-1 bg-green-600 text-white rounded w-full sm:w-auto">Download Excel</button>
             <button onClick={() => { navigator.clipboard?.writeText(JSON.stringify(seating)); alert('Seating copied to clipboard') }} className="px-3 py-1 border rounded w-full sm:w-auto">Copy JSON</button>
             <button onClick={() => setModalOpen(true)} className="px-3 py-1 bg-blue-600 text-white rounded w-full sm:w-auto">Full Screen</button>

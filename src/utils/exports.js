@@ -1,6 +1,8 @@
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import * as XLSX from 'xlsx'
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, ImageRun, WidthType, AlignmentType, BorderStyle, HeadingLevel } from 'docx'
+import { saveAs } from 'file-saver'
 import directionImg from '../../pattern_Images/direction image.png'
 
 // seating: array of benches in row-major order. rows, cols: layout
@@ -315,4 +317,199 @@ function formatDateString(input) {
   } catch (e) {
     return String(input)
   }
+}
+
+export async function saveAsDocx(seating, rows, cols, perBench = 2, gapAfter = 0, meta = {}) {
+  const dots = (n) => '.'.repeat(n)
+  const roomVal = meta.roomNumber || ''
+  const centerVal = meta.centerNumber || ''
+  const dirVal = meta.direction || ''
+  const date1 = formatDateString(meta.examDate || '')
+  const subj1 = meta.subject || ''
+  const qp1 = meta.questionPaper || ''
+  const date2 = formatDateString(meta.examDate2 || '')
+  const subj2 = meta.subject2 || ''
+  const qp2 = meta.questionPaper2 || ''
+  const schoolName = (meta && meta.schoolName) ? String(meta.schoolName) : ''
+
+  // Class summary
+  const classRanges = computeClassRangeFromMetaOrSeating(meta, seating)
+  let totalStudents = 0
+  for (const bench of seating || []) {
+    for (const seat of (bench.seats || [])) {
+      if (seat) totalStudents++
+    }
+  }
+  const classSummaryLines = []
+  for (const cr of classRanges) {
+    let rangeText = ''
+    if ((cr.start || '') && (cr.end || '')) {
+      const sN = Number(cr.start), eN = Number(cr.end)
+      if (!Number.isNaN(sN) && !Number.isNaN(eN)) {
+        rangeText = `${cr.start} से ${cr.end} = ${Math.max(0, eN - sN + 1)}`
+      } else {
+        rangeText = `${cr.start} से ${cr.end}`
+      }
+    } else {
+      rangeText = cr.start || cr.end || ''
+    }
+    classSummaryLines.push(`${cr.name}: ${rangeText}`)
+  }
+  classSummaryLines.push(`कुल: ${totalStudents}`)
+
+  const tableCols = cols * perBench
+  const cellBorders = {
+    top: { style: BorderStyle.SINGLE, size: 1 },
+    bottom: { style: BorderStyle.SINGLE, size: 1 },
+    left: { style: BorderStyle.SINGLE, size: 1 },
+    right: { style: BorderStyle.SINGLE, size: 1 },
+  }
+
+  // Header row
+  const headerCells = []
+  for (let i = 0; i < tableCols; i++) {
+    headerCells.push(
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: 'अनुक्रमांक', bold: true, size: 20, font: 'Mangal' })], alignment: AlignmentType.CENTER })],
+        borders: cellBorders,
+        width: { size: Math.floor(100 / tableCols), type: WidthType.PERCENTAGE },
+      })
+    )
+  }
+  const headerRow = new TableRow({ children: headerCells })
+
+  // Data rows
+  const dataRows = []
+  for (let r = 0; r < rows; r++) {
+    const rowCells = []
+    for (let c = 0; c < cols; c++) {
+      const idx = r * cols + c
+      const bench = seating[idx]
+      const seats = bench ? (bench.seats || []) : []
+      for (let s = 0; s < perBench; s++) {
+        const seat = seats[s] || null
+        const children = []
+        if (seat) {
+          children.push(new Paragraph({ children: [new TextRun({ text: String(seat.roll), size: 22, font: 'Mangal' })], alignment: AlignmentType.CENTER }))
+          if (seat.className) {
+            children.push(new Paragraph({ children: [new TextRun({ text: seat.className, size: 16, color: '555555', font: 'Mangal' })], alignment: AlignmentType.CENTER }))
+          }
+        } else {
+          children.push(new Paragraph({ text: '', alignment: AlignmentType.CENTER }))
+        }
+        rowCells.push(
+          new TableCell({
+            children,
+            borders: cellBorders,
+            width: { size: Math.floor(100 / tableCols), type: WidthType.PERCENTAGE },
+          })
+        )
+      }
+    }
+    dataRows.push(new TableRow({ children: rowCells }))
+  }
+
+  const seatingTable = new Table({
+    rows: [headerRow, ...dataRows],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+  })
+
+  // Header text lines with reduced dots for DOCX
+  const line2Text = date2 || subj2 || qp2
+    ? `(2) तिथि ${fillDots(date2, 30)} विषय ${fillDots(subj2, 25)} प्रश्न पत्र ${fillDots(qp2, 20)}`
+    : `(2)${dots(120)}`
+
+  // Fetch direction image for embedding
+  let dirImageBuffer = null
+  try {
+    const resp = await fetch(directionImg)
+    dirImageBuffer = await resp.arrayBuffer()
+  } catch (e) {
+    console.warn('Could not load direction image for DOCX', e)
+  }
+
+  const docChildren = [
+    // Direction compass image (top-right) - Larger and lower
+    ...(dirImageBuffer ? [new Paragraph({
+      children: [new ImageRun({
+        data: dirImageBuffer,
+        transformation: { width: 135, height: 135 },
+        floating: {
+          horizontalPosition: { relative: 'margin', align: 'right' },
+          verticalPosition: { relative: 'margin', offset: 855000 }, // ~90px down
+          wrap: { type: 'square', side: 'both' },
+        },
+      })],
+    })] : []),
+    // Title
+    new Paragraph({
+      children: [new TextRun({ text: 'परीक्षा कक्ष मानचित्र', bold: true, size: 36, font: 'Mangal' })],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 200 },
+    }),
+    // Room + Center
+    new Paragraph({
+      children: [new TextRun({ text: `कमरा नं0. ${fillDots(roomVal, 50)}    केन्द्र संख्या ${fillDots(centerVal, 30)}`, size: 22, font: 'Mangal' })],
+      spacing: { after: 100 },
+    }),
+    // Direction
+    new Paragraph({
+      children: [new TextRun({ text: `परीक्षार्थियों के बैठने की दिशा व विद्यार्थियों का मुख ${fillDots(dirVal, 40)} की ओर`, size: 22, font: 'Mangal' })],
+      spacing: { after: 100 },
+    }),
+    // Instruction line
+    new Paragraph({
+      children: [new TextRun({ text: 'जिन-जिन तिथियों में बैठने की व्यवस्था इस मानचित्र के अनुसार रही है।', size: 22, font: 'Mangal' })],
+      spacing: { after: 100 },
+    }),
+    // Date entry 1
+    new Paragraph({
+      children: [new TextRun({ text: `(1) तिथि ${fillDots(date1, 25)} विषय ${fillDots(subj1, 25)} प्रश्न पत्र ${fillDots(qp1, 20)}`, size: 22, font: 'Mangal' })],
+      spacing: { after: 100 },
+    }),
+    // Date entry 2
+    new Paragraph({
+      children: [new TextRun({ text: line2Text, size: 22, font: 'Mangal' })],
+      spacing: { after: 200 },
+    }),
+    // Seating table
+    seatingTable,
+    // Spacer
+    new Paragraph({ text: '', spacing: { after: 200 } }),
+  ]
+
+  // Class summary
+  for (const line of classSummaryLines) {
+    docChildren.push(new Paragraph({
+      children: [new TextRun({ text: line, size: 20, font: 'Mangal' })],
+      spacing: { after: 40 },
+    }))
+  }
+
+  // Signature line
+  docChildren.push(new Paragraph({
+    children: [new TextRun({ text: `केन्द्र के मुहर तथा व्यवस्थापक के हस्ताक्षर${dots(50)}`, size: 20, font: 'Mangal' })],
+    spacing: { before: 200 },
+  }))
+
+  if (schoolName) {
+    docChildren.push(new Paragraph({
+      children: [new TextRun({ text: schoolName, size: 18, font: 'Mangal' })],
+      spacing: { before: 100 },
+    }))
+  }
+
+  const doc = new Document({
+    sections: [{
+      properties: {
+        page: {
+          margin: { top: 720, right: 720, bottom: 720, left: 720 },
+        },
+      },
+      children: docChildren,
+    }],
+  })
+
+  const blob = await Packer.toBlob(doc)
+  saveAs(blob, 'seating_chart.docx')
 }
