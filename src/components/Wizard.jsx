@@ -12,7 +12,7 @@ function ClassRow({ idx, cls, onChange, onRemove, totalClasses }) {
       <input placeholder="Start Roll" value={cls.start} onChange={e => onChange(idx, 'start', e.target.value)} className="border p-1 w-full sm:w-24" />
       <input placeholder="End Roll (or leave blank)" value={cls.end || ''} onChange={e => onChange(idx, 'end', e.target.value)} className="border p-1 w-full sm:w-28" />
       <input placeholder="Count (optional)" value={cls.count} onChange={e => onChange(idx, 'count', e.target.value)} className="border p-1 w-full sm:w-20" />
-      <select value={cls.group || 1} onChange={e => onChange(idx, 'group', Number(e.target.value))} className="border p-1 w-full sm:w-20" title="Group number — classes in the same group are concatenated">
+      <select value={cls.group || 1} onChange={e => onChange(idx, 'group', Number(e.target.value))} className="border p-1 w-full sm:w-28" title="Group number — classes in the same group are concatenated">
         {Array.from({ length: totalClasses }, (_, i) => (
           <option key={i + 1} value={i + 1}>Group {i + 1}</option>
         ))}
