@@ -141,9 +141,9 @@ export async function saveAsPdf(seating, rows, cols, perBench = 2, gapAfter = 0,
         const seat = seats[s] || null
         let cellContent = ''
         if (seat) {
-          cellContent = `<div style="text-align:center;line-height:1.4;">${String(seat.roll)}${seat.className ? `<br/><span style="font-size:9px;color:#333;">${seat.className}</span>` : ''}</div>`
+          cellContent = `<div style="text-align:center;line-height:1.4;"><b style="font-size:15px;">${String(seat.roll)}</b>${seat.className ? `<br/><span style="font-size:12px;color:#333;font-weight:bold;">${seat.className}</span>` : ''}</div>`
         }
-        gridBodyHtml += `<td style="border:1.5px solid #000;padding:8px 4px;font-size:12px;min-height:48px;height:48px;vertical-align:middle;text-align:center;">${cellContent}</td>`
+        gridBodyHtml += `<td style="border:1.5px solid #000;padding:8px 4px;font-size:15px;min-height:48px;height:48px;vertical-align:middle;text-align:center;">${cellContent}</td>`
       }
       if (gapAfter > 0 && ((c + 1) % gapAfter === 0) && c !== cols - 1) {
         gridBodyHtml += `<td style="border:1.5px solid #000;background:#eee;"></td>`
@@ -390,9 +390,9 @@ export async function saveAsDocx(seating, rows, cols, perBench = 2, gapAfter = 0
         const seat = seats[s] || null
         const children = []
         if (seat) {
-          children.push(new Paragraph({ children: [new TextRun({ text: String(seat.roll), size: 22, font: 'Mangal' })], alignment: AlignmentType.CENTER }))
+          children.push(new Paragraph({ children: [new TextRun({ text: String(seat.roll), size: 26, bold: true, font: 'Mangal' })], alignment: AlignmentType.CENTER }))
           if (seat.className) {
-            children.push(new Paragraph({ children: [new TextRun({ text: seat.className, size: 16, color: '555555', font: 'Mangal' })], alignment: AlignmentType.CENTER }))
+            children.push(new Paragraph({ children: [new TextRun({ text: seat.className, size: 20, bold: true, color: '555555', font: 'Mangal' })], alignment: AlignmentType.CENTER }))
           }
         } else {
           children.push(new Paragraph({ text: '', alignment: AlignmentType.CENTER }))

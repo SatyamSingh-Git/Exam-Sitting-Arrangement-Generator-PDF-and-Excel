@@ -5,13 +5,18 @@ import { saveAsExcel, saveAsPdf, saveAsDocx } from '../utils/exports'
 import PatternThumb from './PatternThumb'
 import FullscreenPreview from './FullscreenPreview'
 
-function ClassRow({ idx, cls, onChange, onRemove }) {
+function ClassRow({ idx, cls, onChange, onRemove, totalClasses }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
       <input placeholder="Class name" value={cls.name} onChange={e => onChange(idx, 'name', e.target.value)} className="border p-1 flex-1 w-full sm:w-auto" />
       <input placeholder="Start Roll" value={cls.start} onChange={e => onChange(idx, 'start', e.target.value)} className="border p-1 w-full sm:w-24" />
       <input placeholder="End Roll (or leave blank)" value={cls.end || ''} onChange={e => onChange(idx, 'end', e.target.value)} className="border p-1 w-full sm:w-28" />
       <input placeholder="Count (optional)" value={cls.count} onChange={e => onChange(idx, 'count', e.target.value)} className="border p-1 w-full sm:w-20" />
+      <select value={cls.group || 1} onChange={e => onChange(idx, 'group', Number(e.target.value))} className="border p-1 w-full sm:w-20" title="Group number — classes in the same group are concatenated">
+        {Array.from({ length: totalClasses }, (_, i) => (
+          <option key={i + 1} value={i + 1}>Group {i + 1}</option>
+        ))}
+      </select>
       <input type="color" value={cls.color} onChange={e => onChange(idx, 'color', e.target.value)} className="w-12 h-8 p-0" />
       <button onClick={() => onRemove(idx)} className="text-sm text-red-600 mt-2 sm:mt-0">Remove</button>
     </div>
@@ -21,8 +26,8 @@ function ClassRow({ idx, cls, onChange, onRemove }) {
 export default function Wizard() {
   const [step, setStep] = useState(1)
   const [classes, setClasses] = useState([
-    { name: 'Class A', start: '', end: '', count: '', color: '#ef4444' },
-    { name: 'Class B', start: '', end: '', count: '', color: '#3b82f6' }
+    { name: 'Class A', start: '', end: '', count: '', color: '#ef4444', group: 1 },
+    { name: 'Class B', start: '', end: '', count: '', color: '#3b82f6', group: 2 }
   ])
   const [rows, setRows] = useState(12)
   const [cols, setCols] = useState(3)
@@ -47,7 +52,7 @@ export default function Wizard() {
     copy[i][key] = value
     setClasses(copy)
   }
-  function addClass() { setClasses([...classes, { name: '', start: '', count: '0', color: '#cccccc' }]) }
+  function addClass() { setClasses([...classes, { name: '', start: '', count: '0', color: '#cccccc', group: classes.length + 1 }]) }
   function removeClass(i) { setClasses(classes.filter((_, j) => j !== i)) }
 
   const seating = generateSeating({ classes, rows, cols, perBench, pattern, gapAfter, leaveFirstSeatEmpty })
@@ -67,7 +72,7 @@ export default function Wizard() {
             <input id="leaveFirst" type="checkbox" checked={leaveFirstSeatEmpty} onChange={e => setLeaveFirstSeatEmpty(e.target.checked)} className="w-4 h-4" />
             <label htmlFor="leaveFirst" className="text-sm">Leave First Seat Empty</label>
           </div>
-          {classes.map((c, i) => <ClassRow key={i} idx={i} cls={c} onChange={updateClass} onRemove={removeClass} />)}
+          {classes.map((c, i) => <ClassRow key={i} idx={i} cls={c} onChange={updateClass} onRemove={removeClass} totalClasses={classes.length} />)}
           <div className="flex gap-2 mt-2">
             <button onClick={addClass} className="px-3 py-1 bg-green-500 text-white rounded">+ Add Class</button>
             <button onClick={() => setStep(2)} className="px-3 py-1 bg-blue-600 text-white rounded">Next</button>
